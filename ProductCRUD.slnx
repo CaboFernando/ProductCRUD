@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="ProductCRUD.API/ProductCRUD.API.csproj" />
+  <Project Path="ProductCRUD.Data/ProductCRUD.Data.csproj" />
+  <Project Path="ProductCRUD.Domain/ProductCRUD.Domain.csproj" />
 </Solution>
