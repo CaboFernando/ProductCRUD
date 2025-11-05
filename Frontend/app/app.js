@@ -13,5 +13,5 @@
                     redirectTo: '/'
                 });
         }])
-        .constant('API_URL', 'http://localhost:44370/api/products');
+        .constant('API_URL', 'https://localhost:44370/api/products');
 })();
