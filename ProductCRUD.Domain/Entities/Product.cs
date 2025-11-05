@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ProductCRUD.Data.Entities
+namespace ProductCRUD.Domain.Entities
 {
     public class Product
     {
