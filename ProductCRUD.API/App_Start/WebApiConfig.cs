@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
+﻿using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace ProductCRUD.API
 {
@@ -9,8 +7,9 @@ namespace ProductCRUD.API
     {
         public static void Register(HttpConfiguration config)
         {
-            // CORS via custom handler
-            config.MessageHandlers.Add(new Handlers.CorsMessageHandler());
+            // Habilitar CORS
+            var cors = new EnableCorsAttribute("*", "*", "*");
+            config.EnableCors(cors);
 
             // Rotas
             config.MapHttpAttributeRoutes();

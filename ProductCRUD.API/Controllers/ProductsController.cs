@@ -1,9 +1,11 @@
 ﻿using System.Web.Http;
+using System.Web.Http.Cors;
 using ProductCRUD.Domain.Entities;
 using ProductCRUD.Data.Repositories;
 
 namespace ProductCRUD.API.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     [RoutePrefix("api/products")]
     public class ProductsController : ApiController
     {
