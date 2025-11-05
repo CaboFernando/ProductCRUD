@@ -9,9 +9,10 @@ namespace ProductCRUD.API
     {
         public static void Register(HttpConfiguration config)
         {
-            // Web API configuration and services
+            // CORS via custom handler
+            config.MessageHandlers.Add(new Handlers.CorsMessageHandler());
 
-            // Web API routes
+            // Rotas
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
