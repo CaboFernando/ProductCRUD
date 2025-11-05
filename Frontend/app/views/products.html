@@ -1,0 +1,51 @@
+<section class="products">
+  <h2>Produtos</h2>
+
+  <form class="product-form" ng-submit="vm.save()">
+    <div class="row">
+      <label>Nome</label>
+      <input type="text" ng-model="vm.form.name" placeholder="Nome do produto" required />
+    </div>
+
+    <div class="row">
+      <label>Preço</label>
+      <input type="number" step="0.01" ng-model="vm.form.price" placeholder="Preço" required />
+    </div>
+
+    <div class="row">
+      <label>Estoque</label>
+      <input type="number" ng-model="vm.form.stock" placeholder="Estoque" required />
+    </div>
+
+    <div class="actions">
+      <button type="submit">{{ vm.isEditing ? 'Atualizar' : 'Adicionar' }}</button>
+      <button type="button" ng-click="vm.cancel()" ng-if="vm.isEditing">Cancelar</button>
+    </div>
+  </form>
+
+  <table class="product-table" ng-if="vm.products.length">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Preço</th>
+        <th>Estoque</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="p in vm.products">
+        <td>{{ p.id || p.Id }}</td>
+        <td>{{ p.name || p.Name }}</td>
+        <td>{{ (p.price || p.Price) | currency:'R$' }}</td>
+        <td>{{ p.stock || p.Stock }}</td>
+        <td>
+          <button type="button" ng-click="vm.edit(p)">Editar</button>
+          <button type="button" class="danger" ng-click="vm.remove(p)">Excluir</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p ng-if="!vm.products.length">Nenhum produto cadastrado.</p>
+</section>
