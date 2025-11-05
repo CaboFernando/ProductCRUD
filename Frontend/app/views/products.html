@@ -1,51 +1,105 @@
-<section class="products">
-  <h2>Produtos</h2>
+<div class="row">
+    <div class="col-md-12">
+        <h2>Gerenciamento de Produtos</h2>
+        
+        <!-- Mensagens -->
+        <div ng-show="vm.successMessage" class="alert alert-success alert-dismissible">
+            {{vm.successMessage}}
+        </div>
+        <div ng-show="vm.errorMessage" class="alert alert-danger alert-dismissible">
+            {{vm.errorMessage}}
+        </div>
 
-  <form class="product-form" ng-submit="vm.save()">
-    <div class="row">
-      <label>Nome</label>
-      <input type="text" ng-model="vm.form.name" placeholder="Nome do produto" required />
+        <!-- Formul√°rio -->
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{vm.isEditing ? 'Editar Produto' : 'Novo Produto'}}</h3>
+            </div>
+            <div class="panel-body">
+                <form name="productForm" ng-submit="vm.saveProduct()" novalidate>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nome *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       ng-model="vm.product.Nome" 
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Pre√ßo *</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       ng-model="vm.product.Preco" 
+                                       step="0.01"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Descri√ß√£o</label>
+                        <textarea class="form-control" 
+                                  ng-model="vm.product.Descricao" 
+                                  rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            {{vm.isEditing ? 'Atualizar' : 'Salvar'}}
+                        </button>
+                        <button type="button" 
+                                class="btn btn-default" 
+                                ng-click="vm.cancelEdit()"
+                                ng-show="vm.isEditing">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Listagem -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Lista de Produtos</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Descri√ß√£o</th>
+                            <th>Pre√ßo</th>
+                            <th>Data Cadastro</th>
+                            <th>A√ß√µes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="product in vm.products">
+                            <td>{{product.Id}}</td>
+                            <td>{{product.Nome}}</td>
+                            <td>{{product.Descricao}}</td>
+                            <td>{{product.Preco | currency:'R$ '}}</td>
+                            <td>{{product.DataCadastro | date:'dd/MM/yyyy HH:mm'}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info" 
+                                        ng-click="vm.editProduct(product)">
+                                    Editar
+                                </button>
+                                <button class="btn btn-sm btn-danger" 
+                                        ng-click="vm.deleteProduct(product.Id)">
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+                        <tr ng-show="vm.products.length === 0">
+                            <td colspan="6" class="text-center">Nenhum produto cadastrado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-
-    <div class="row">
-      <label>PreÁo</label>
-      <input type="number" step="0.01" ng-model="vm.form.price" placeholder="PreÁo" required />
-    </div>
-
-    <div class="row">
-      <label>Estoque</label>
-      <input type="number" ng-model="vm.form.stock" placeholder="Estoque" required />
-    </div>
-
-    <div class="actions">
-      <button type="submit">{{ vm.isEditing ? 'Atualizar' : 'Adicionar' }}</button>
-      <button type="button" ng-click="vm.cancel()" ng-if="vm.isEditing">Cancelar</button>
-    </div>
-  </form>
-
-  <table class="product-table" ng-if="vm.products.length">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nome</th>
-        <th>PreÁo</th>
-        <th>Estoque</th>
-        <th>AÁıes</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="p in vm.products">
-        <td>{{ p.id || p.Id }}</td>
-        <td>{{ p.name || p.Name }}</td>
-        <td>{{ (p.price || p.Price) | currency:'R$' }}</td>
-        <td>{{ p.stock || p.Stock }}</td>
-        <td>
-          <button type="button" ng-click="vm.edit(p)">Editar</button>
-          <button type="button" class="danger" ng-click="vm.remove(p)">Excluir</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p ng-if="!vm.products.length">Nenhum produto cadastrado.</p>
-</section>
+</div>

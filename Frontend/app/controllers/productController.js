@@ -1,54 +1,120 @@
-'use strict';
+(function() {
+    'use strict';
 
-(function () {
-  angular
-    .module('productApp')
-    .controller('ProductController', ['ProductService', function (ProductService) {
-      var vm = this;
-      vm.products = [];
-      vm.form = {};
-      vm.isEditing = false;
+    angular.module('productApp')
+        .controller('ProductController', ['ProductService', ProductController]);
 
-      vm.load = function () {
-        ProductService.getAll().then(function (data) {
-          vm.products = data || [];
-        });
-      };
+    function ProductController(ProductService) {
+        var vm = this;
 
-      vm.edit = function (product) {
-        vm.form = angular.copy(product);
-        vm.isEditing = true;
-      };
-
-      vm.cancel = function () {
-        vm.form = {};
+        vm.products = [];
+        vm.product = {};
         vm.isEditing = false;
-      };
+        vm.errorMessage = '';
+        vm.successMessage = '';
 
-      vm.save = function () {
-        if (vm.isEditing) {
-          ProductService.update(vm.form.id || vm.form.Id, vm.form).then(function () {
-            vm.load();
-            vm.cancel();
-          });
-        } else {
-          ProductService.create(vm.form).then(function () {
-            vm.load();
-            vm.cancel();
-          });
+        vm.loadProducts = loadProducts;
+        vm.saveProduct = saveProduct;
+        vm.editProduct = editProduct;
+        vm.deleteProduct = deleteProduct;
+        vm.cancelEdit = cancelEdit;
+
+        init();
+
+        function init() {
+            loadProducts();
         }
-      };
 
-      vm.remove = function (product) {
-        var id = product.id || product.Id;
-        if (!id) return;
-        if (!confirm('Excluir este produto?')) return;
-        ProductService.remove(id).then(function () {
-          vm.load();
-        });
-      };
+        function loadProducts() {
+            ProductService.getAll()
+                .then(function(response) {
+                    vm.products = response.data;
+                })
+                .catch(function(error) {
+                    showError('Erro ao carregar produtos');
+                });
+        }
 
-      // init
-      vm.load();
-    }]);
+        function saveProduct() {
+            if (!validateProduct()) return;
+
+            if (vm.isEditing) {
+                updateProduct();
+            } else {
+                createProduct();
+            }
+        }
+
+        function createProduct() {
+            ProductService.create(vm.product)
+                .then(function(response) {
+                    showSuccess('Produto criado com sucesso!');
+                    loadProducts();
+                    cancelEdit();
+                })
+                .catch(function(error) {
+                    showError('Erro ao criar produto');
+                });
+        }
+
+        function updateProduct() {
+            ProductService.update(vm.product.Id, vm.product)
+                .then(function(response) {
+                    showSuccess('Produto atualizado com sucesso!');
+                    loadProducts();
+                    cancelEdit();
+                })
+                .catch(function(error) {
+                    showError('Erro ao atualizar produto');
+                });
+        }
+
+        function editProduct(product) {
+            vm.product = angular.copy(product);
+            vm.isEditing = true;
+        }
+
+        function deleteProduct(id) {
+            if (!confirm('Deseja realmente excluir este produto?')) return;
+
+            ProductService.remove(id)
+                .then(function() {
+                    showSuccess('Produto excluído com sucesso!');
+                    loadProducts();
+                })
+                .catch(function(error) {
+                    showError('Erro ao excluir produto');
+                });
+        }
+
+        function cancelEdit() {
+            vm.product = {};
+            vm.isEditing = false;
+            clearMessages();
+        }
+
+        function validateProduct() {
+            if (!vm.product.Nome || !vm.product.Preco) {
+                showError('Preencha todos os campos obrigatórios');
+                return false;
+            }
+            return true;
+        }
+
+        function showSuccess(message) {
+            vm.successMessage = message;
+            vm.errorMessage = '';
+            setTimeout(clearMessages, 3000);
+        }
+
+        function showError(message) {
+            vm.errorMessage = message;
+            vm.successMessage = '';
+        }
+
+        function clearMessages() {
+            vm.successMessage = '';
+            vm.errorMessage = '';
+        }
+    }
 })();

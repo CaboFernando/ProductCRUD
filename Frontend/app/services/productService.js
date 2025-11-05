@@ -1,40 +1,38 @@
-'use strict';
+(function() {
+    'use strict';
 
-(function () {
-  angular
-    .module('productApp')
-    .factory('ProductService', ['$http', 'API_BASE_URL', function ($http, API_BASE_URL) {
-      var baseUrl = API_BASE_URL + '/products';
+    angular.module('productApp')
+        .factory('ProductService', ['$http', 'API_URL', ProductService]);
 
-      function getAll() {
-        return $http.get(baseUrl).then(handleSuccess, handleError);
-      }
+    function ProductService($http, API_URL) {
+        var service = {
+            getAll: getAll,
+            getById: getById,
+            create: create,
+            update: update,
+            remove: remove
+        };
 
-      function getById(id) {
-        return $http.get(baseUrl + '/' + id).then(handleSuccess, handleError);
-      }
+        return service;
 
-      function create(product) {
-        return $http.post(baseUrl, product).then(handleSuccess, handleError);
-      }
+        function getAll() {
+            return $http.get(API_URL);
+        }
 
-      function update(id, product) {
-        return $http.put(baseUrl + '/' + id, product).then(handleSuccess, handleError);
-      }
+        function getById(id) {
+            return $http.get(API_URL + '/' + id);
+        }
 
-      function remove(id) {
-        return $http.delete(baseUrl + '/' + id).then(handleSuccess, handleError);
-      }
+        function create(product) {
+            return $http.post(API_URL, product);
+        }
 
-      function handleSuccess(response) { return response.data; }
-      function handleError(error) { return Promise.reject(error.data || error); }
+        function update(id, product) {
+            return $http.put(API_URL + '/' + id, product);
+        }
 
-      return {
-        getAll: getAll,
-        getById: getById,
-        create: create,
-        update: update,
-        remove: remove
-      };
-    }]);
+        function remove(id) {
+            return $http.delete(API_URL + '/' + id);
+        }
+    }
 })();
