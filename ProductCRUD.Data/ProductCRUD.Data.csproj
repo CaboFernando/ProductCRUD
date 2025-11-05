@@ -52,6 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Context\ProductContext.cs" />
+    <Compile Include="Migrations\202511052037570_InitialCreate.cs" />
+    <Compile Include="Migrations\202511052037570_InitialCreate.Designer.cs">
+      <DependentUpon>202511052037570_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ProductRepository.cs" />
   </ItemGroup>
@@ -64,6 +69,11 @@
       <Project>{E3BB9711-C80B-46D3-89CF-F1E6922EABB1}</Project>
       <Name>ProductCRUD.Domain</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202511052037570_InitialCreate.resx">
+      <DependentUpon>202511052037570_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
