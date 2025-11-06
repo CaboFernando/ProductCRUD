@@ -58,7 +58,7 @@
         }
 
         function updateProduct() {
-            ProductService.update(vm.product.Id, vm.product)
+            ProductService.update(vm.product.id, vm.product)
                 .then(function(response) {
                     showSuccess('Produto atualizado com sucesso!');
                     loadProducts();
@@ -94,7 +94,7 @@
         }
 
         function validateProduct() {
-            if (!vm.product.Nome || !vm.product.Preco) {
+            if (!vm.product.nome || !vm.product.preco) {
                 showError('Preencha todos os campos obrigatórios');
                 return false;
             }
