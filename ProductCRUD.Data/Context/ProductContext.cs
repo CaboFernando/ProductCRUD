@@ -1,10 +1,16 @@
 ﻿using ProductCRUD.Domain.Entities;
 using System.Data.Entity;
+using ProductCRUD.Data.Migrations;
 
 namespace ProductCRUD.Data.Context
 {
     public class ProductContext : DbContext
     {
+        static ProductContext()
+        {
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ProductContext, Configuration>());
+        }
+
         public ProductContext() : base("DefaultConnection")
         {
         }

@@ -11,8 +11,8 @@ Aplicação web para gerenciamento de produtos com operações de criação, lei
 ### Backend
 - .NET Framework 4.8
 - ASP.NET Web API 2
-- Entity Framework 6.4.4
-- SQL Server LocalDB
+- Entity Framework 6
+- SQL Server (LocalDB/Express/Full)
 - C#
 
 ### Frontend
@@ -25,18 +25,25 @@ Aplicação web para gerenciamento de produtos com operações de criação, lei
 
 ```
 ProductCRUD/
-├── ProductCRUD.API/          # Camada de Apresentação (Web API)
-├── ProductCRUD.Data/         # Camada de Acesso a Dados
-├── ProductCRUD.Domain/       # Camada de Domínio (Entidades)
-└── Frontend/                 # Aplicação AngularJS
+├── ProductCRUD.API/          # Camada de API (Web API 2)
+│   ├── Controllers/ProductsController.cs
+│   ├── Services/ProductService.cs        # Camada de aplicação (orquestra DTOs ↔ domínio)
+│   ├── Models/ProductDtos.cs             # DTOs: Create/Update/Read
+│   └── App_Start/WebApiConfig.cs         # CORS + JSON camelCase
+├── ProductCRUD.Data/         # Acesso a dados (EF6)
+│   ├── Context/ProductContext.cs
+│   ├── Repositories/ProductRepository.cs
+│   └── Migrations/*
+└── ProductCRUD.Domain/       # Domínio (Entidades e Contratos)
+    ├── Entities/Product.cs
+    └── Repositories/IProductRepository.cs
 ```
 
 ### Padrões Utilizados
-- **Repository Pattern** para acesso a dados
-- **Dependency Injection** via construtores
-- **RESTful API** com verbos HTTP semânticos
-- **MVC Pattern** no frontend (AngularJS)
-- **Separation of Concerns** entre camadas
+- Repository Pattern para acesso a dados
+- Service/Application Layer para regras simples e mapeamento
+- RESTful API com verbos HTTP semânticos
+- Separation of Concerns entre camadas
 
 ## 📦 Funcionalidades
 
@@ -45,17 +52,14 @@ ProductCRUD/
 - ✅ Criar novo produto
 - ✅ Editar produto existente
 - ✅ Excluir produto
-- ✅ Validação de dados
-- ✅ Mensagens de feedback ao usuário
-- ✅ Interface responsiva
+- ✅ Validação de dados (DataAnnotations nos DTOs)
 
 ## 🚀 Como Executar
 
 ### Pré-requisitos
 - Visual Studio 2019 ou superior
 - .NET Framework 4.8
-- SQL Server LocalDB
-- Navegador web moderno
+- SQL Server (LocalDB/Express/Full)
 
 ### Backend
 
@@ -65,165 +69,114 @@ git clone https://github.com/CaboFernando/ProductCRUD.git
 cd ProductCRUD
 ```
 
-2. Abra a solution no Visual Studio:
-```
-ProductCRUD.slnx
-```
+2. Abra a solution no Visual Studio.
 
-3. Restaure os pacotes NuGet:
-```
-Tools → NuGet Package Manager → Restore NuGet Packages
-```
+3. Configure a connection string em `ProductCRUD.API/Web.config` (nome `DefaultConnection`).
 
-4. Execute as migrations para criar o banco de dados:
-```powershell
-Update-Database -ProjectName ProductCRUD.Data
-```
-
-5. Execute o projeto (F5):
-```
-A API estará disponível em: https://localhost:44370/api/products
-```
+4. Execute o projeto (F5). Na primeira execução o EF6 aplicará as migrações automaticamente via `MigrateDatabaseToLatestVersion`.
+   - Opcionalmente, você pode aplicar as migrações manualmente:
+   ```powershell
+   Update-Database -ProjectName ProductCRUD.Data
+   ```
 
 ### Frontend
 
-1. Navegue até a pasta Frontend:
-```bash
-cd Frontend
-```
-
-2. Inicie um servidor web local. Opções:
-
-**Opção 1 - Live Server (VS Code):**
-- Instale a extensão "Live Server"
-- Clique direito em `index.html` → "Open with Live Server"
-
-**Opção 2 - http-server (Node.js):**
-```bash
-npm install -g http-server
-http-server -p 8080
-```
-
-**Opção 3 - Python:**
-```bash
-python -m http.server 8080
-```
-
-3. Acesse no navegador:
-```
-http://localhost:8080
-```
+Siga as instruções no diretório do frontend (se aplicável) para subir um servidor estático e consumir os endpoints abaixo.
 
 ## 🔧 Configuração
 
 ### Connection String
 
-Edite o arquivo `ProductCRUD.API/Web.config` se necessário:
-
+`ProductCRUD.API/Web.config`:
 ```xml
 <connectionStrings>
-  <add name="DefaultConnection" 
-       connectionString="Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=ProductCRUD;Integrated Security=True" 
+  <add name="DefaultConnection"
+       connectionString="Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=ProductCRUD;Integrated Security=True;MultipleActiveResultSets=True"
        providerName="System.Data.SqlClient" />
 </connectionStrings>
 ```
 
-### API URL no Frontend
-
-Edite `Frontend/app/app.js` para ajustar a porta da API:
-
-```javascript
-.constant('API_URL', 'http://localhost:44370/api/products');
-```
-
-## 📊 Estrutura do Banco de Dados
-
-### Tabela: Products
-
-| Campo        | Tipo         | Descrição                  |
-|--------------|--------------|----------------------------|
-| Id           | int          | Chave primária (identity)  |
-| Nome         | varchar(100) | Nome do produto            |
-| Descricao    | text         | Descrição do produto       |
-| Preco        | decimal(18,2)| Preço do produto           |
-| DataCadastro | datetime     | Data de criação do registro|
-
 ## 🔍 Endpoints da API
 
-| Método | Endpoint              | Descrição                |
-|--------|-----------------------|--------------------------|
-| GET    | /api/products         | Lista todos os produtos  |
-| GET    | /api/products/{id}    | Busca produto por ID     |
-| POST   | /api/products         | Cria novo produto        |
-| PUT    | /api/products/{id}    | Atualiza produto         |
-| DELETE | /api/products/{id}    | Exclui produto           |
+Base: `/api/products`
+
+| Método | Endpoint           | Descrição                |
+|--------|---------------------|--------------------------|
+| GET    | /api/products       | Lista todos os produtos  |
+| GET    | /api/products/{id}  | Busca produto por ID     |
+| POST   | /api/products       | Cria novo produto        |
+| PUT    | /api/products/{id}  | Atualiza produto         |
+| DELETE | /api/products/{id}  | Exclui produto           |
 
 ### Exemplo de Request (POST/PUT)
 
 ```json
 {
-  "Nome": "Notebook Dell",
-  "Descricao": "Notebook i7, 16GB RAM, SSD 512GB",
-  "Preco": 4599.90
+  "nome": "Notebook Dell",
+  "descricao": "Notebook i7, 16GB RAM, SSD 512GB",
+  "preco": 4599.90
 }
 ```
 
-## 🧪 Testando a API
+### Exemplo de Response (Read DTO)
 
-### Postman / Insomnia
-
-**GET - Listar produtos:**
-```
-GET http://localhost:44370/api/products
-```
-
-**POST - Criar produto:**
-```
-POST http://localhost:44370/api/products
-Content-Type: application/json
-
+```json
 {
-  "Nome": "Mouse Logitech",
-  "Descricao": "Mouse sem fio",
-  "Preco": 89.90
+  "id": 1,
+  "nome": "Notebook Dell",
+  "descricao": "Notebook i7, 16GB RAM, SSD 512GB",
+  "preco": 4599.90,
+  "dataCadastro": "2025-11-05T20:55:00"
 }
 ```
+
+## 📊 Estrutura do Banco de Dados
+
+Tabela `Products` (Code First):
+
+| Campo        | Tipo             | Regras                     |
+|--------------|------------------|----------------------------|
+| Id           | int              | Identity, PK               |
+| Nome         | nvarchar(100)    | Not null                   |
+| Descricao    | nvarchar(max)    | Nullable                   |
+| Preco        | decimal(18,2)    | Not null                   |
+| DataCadastro | datetime         | Not null (definido no repo)|
+
+## 🌐 CORS e Formatação JSON
+- CORS habilitado via `WebApiConfig`/`[EnableCors]` permitindo todas as origens (ajuste para produção).
+- Formatação JSON em camelCase e XML desabilitado.
+- `POST` retorna `201 Created` com `Location` usando `CreatedAtRoute`.
 
 ## 📝 Decisões Técnicas
 
-### Por que 3 camadas (sem Business Layer)?
-Para um CRUD simples, optei por não incluir uma camada de negócio separada, evitando over-engineering. Se o projeto crescesse com regras complexas, seria refatorado para incluir essa camada.
+- DTOs introduzidos para separar contrato de API da entidade de domínio e aplicar validações.
+- Camada de serviço para orquestração e mapeamento (mantendo controllers finos).
+- Repositório com `AsNoTracking()` em listagens para performance.
+- Migrações automáticas na inicialização do contexto para simplificar setup.
 
-### Por que CORS via Web.config?
-Configurei CORS manualmente via Web.config ao invés de usar pacotes NuGet para evitar conflitos de versão e demonstrar conhecimento de configuração do ASP.NET.
+## 🧪 Testando a API (exemplos)
 
-### Por que Repository Pattern?
-O padrão Repository abstrai o acesso a dados, facilitando testes unitários e possíveis mudanças de estratégia de persistência no futuro.
+Listar produtos:
+```
+GET http://localhost:{porta}/api/products
+```
 
-## 🎯 Boas Práticas Implementadas
+Criar produto:
+```
+POST http://localhost:{porta}/api/products
+Content-Type: application/json
 
-- ✅ Separação de responsabilidades (SRP)
-- ✅ Nomenclatura consistente e semântica
-- ✅ Tratamento de exceções
-- ✅ Validação de dados no backend e frontend
-- ✅ Feedback visual para o usuário
-- ✅ Código limpo e legível
-- ✅ Configurações centralizadas
-- ✅ Versionamento com Git
-
-## 📱 Screenshots
-
-### Lista de Produtos
-![Lista de Produtos](https://via.placeholder.com/800x400?text=Lista+de+Produtos)
-
-### Formulário de Cadastro
-![Formulário](https://via.placeholder.com/800x400?text=Formulário+de+Cadastro)
+{
+  "nome": "Mouse Logitech",
+  "descricao": "Mouse sem fio",
+  "preco": 89.90
+}
+```
 
 ## 👤 Autor
 
 **Fernando Cabo**
 - GitHub: [@CaboFernando](https://github.com/CaboFernando)
-- LinkedIn: [Seu LinkedIn](https://linkedin.com/in/seu-perfil)
 
 ## 📄 Licença
 

@@ -1,7 +1,7 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Cors;
-using ProductCRUD.Domain.Entities;
-using ProductCRUD.Data.Repositories;
+using ProductCRUD.API.Models;
+using ProductCRUD.API.Services;
 
 namespace ProductCRUD.API.Controllers
 {
@@ -9,11 +9,11 @@ namespace ProductCRUD.API.Controllers
     [RoutePrefix("api/products")]
     public class ProductsController : ApiController
     {
-        private readonly ProductRepository _repository;
+        private readonly IProductService _service;
 
         public ProductsController()
         {
-            _repository = new ProductRepository();
+            _service = new ProductService();
         }
 
         // GET api/products
@@ -21,16 +21,16 @@ namespace ProductCRUD.API.Controllers
         [Route("")]
         public IHttpActionResult GetAll()
         {
-            var products = _repository.GetAll();
+            var products = _service.GetAll();
             return Ok(products);
         }
 
         // GET api/products/5
         [HttpGet]
-        [Route("{id:int}")]
+        [Route("{id:int}", Name = "GetProductById")]
         public IHttpActionResult GetById(int id)
         {
-            var product = _repository.GetById(id);
+            var product = _service.GetById(id);
             if (product == null)
                 return NotFound();
             return Ok(product);
@@ -39,25 +39,24 @@ namespace ProductCRUD.API.Controllers
         // POST api/products
         [HttpPost]
         [Route("")]
-        public IHttpActionResult Create([FromBody] Product product)
+        public IHttpActionResult Create([FromBody] ProductCreateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var created = _repository.Create(product);
-            return Created($"api/products/{created.Id}", created);
+            var created = _service.Create(dto);
+            return CreatedAtRoute("GetProductById", new { id = created.Id }, created);
         }
 
         // PUT api/products/5
         [HttpPut]
         [Route("{id:int}")]
-        public IHttpActionResult Update(int id, [FromBody] Product product)
+        public IHttpActionResult Update(int id, [FromBody] ProductUpdateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            product.Id = id;
-            var updated = _repository.Update(product);
+            var updated = _service.Update(id, dto);
             if (updated == null)
                 return NotFound();
 
@@ -69,11 +68,21 @@ namespace ProductCRUD.API.Controllers
         [Route("{id:int}")]
         public IHttpActionResult Delete(int id)
         {
-            var result = _repository.Delete(id);
+            var result = _service.Delete(id);
             if (!result)
                 return NotFound();
 
             return Ok();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                var disposable = _service as System.IDisposable;
+                if (disposable != null) disposable.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }
